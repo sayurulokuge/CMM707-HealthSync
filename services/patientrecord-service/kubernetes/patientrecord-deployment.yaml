@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: patientrecord-deployment
+  labels:
+    app: patientrecord
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: patientrecord
+  template:
+    metadata:
+      labels:
+        app: patientrecord
+    spec:
+      containers:
+      - name: patientrecord
+        image: 442426890046.dkr.ecr.ap-southeast-1.amazonaws.com/patientrecordservice:latest
+        ports:
+        - containerPort: 8000

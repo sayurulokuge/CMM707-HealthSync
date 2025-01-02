@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appointmentscheduling-deployment
+  labels:
+    app: appointmentscheduling
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: appointmentscheduling
+  template:
+    metadata:
+      labels:
+        app: appointmentscheduling
+    spec:
+      containers:
+      - name: appointmentscheduling
+        image: 442426890046.dkr.ecr.ap-southeast-1.amazonaws.com/appointmentschedulingservice:latest
+        ports:
+        - containerPort: 8001

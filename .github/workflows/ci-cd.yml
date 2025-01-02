@@ -1,0 +1,75 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code from the repo
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Set up Docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      # Log in to ECR
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      # Build Docker images for each service
+      - name: Build Docker image for patientrecord-service
+        run: |
+          cd services/patientrecord-service/src
+          docker build -t patient-record-service .
+          docker tag patient-record-service:latest 442426890046.dkr.ecr.ap-southeast-1.amazonaws.com/patientrecordservice
+          docker push 442426890046.dkr.ecr.ap-southeast-1.amazonaws.com/patientrecordservice
+
+      - name: Build Docker image for appointmentscheduling-service
+        run: |
+          cd services/appointmentscheduling-service/src
+          docker build -t appointment-scheduling-service .
+          docker tag appointment-scheduling-service:latest 442426890046.dkr.ecr.ap-southeast-1.amazonaws.com/appointmentschedulingservice
+          docker push 442426890046.dkr.ecr.ap-southeast-1.amazonaws.com/appointmentschedulingservice
+
+      - name: Build Docker image for notification-service
+        run: |
+          cd services/notification-service/src
+          docker build -t notification-service .
+          docker tag notification-service:latest 442426890046.dkr.ecr.ap-southeast-1.amazonaws.com/notificationservice
+          docker push 442426890046.dkr.ecr.ap-southeast-1.amazonaws.com/notificationservice
+
+      # Deploy to EKS
+      - name: Deploy to EKS
+        run: |
+          aws eks --region ap-southeast-1 update-kubeconfig --name HealthSync
+          
+      # Apply Deployment and Service YAML for patientrecord-service   
+      - name: Deploy patientrecord-service to EKS
+        run: |
+          kubectl apply -f services/patientrecord-service/kubernetes/patientrecord-deployment.yaml
+          kubectl apply -f services/patientrecord-service/kubernetes/patientrecord-service.yaml
+
+      # Apply Deployment and Service YAML for appointmentscheduling-service
+      - name: Deploy appointmentscheduling-service to EKS
+        run: |
+          kubectl apply -f services/appointmentscheduling-service/kubernetes/appointmentscheduling-deployment.yaml
+          kubectl apply -f services/appointmentscheduling-service/kubernetes/appointmentscheduling-service.yaml
+
+      # Apply Deployment and Service YAML for notification-service
+      - name: Deploy notification-service to EKS
+        run: |
+          kubectl apply -f services/notification-service/kubernetes/notification-deployment.yaml
+          kubectl apply -f services/notification-service/kubernetes/notification-service.yaml
+
+      # Check the deployment status for all services
+      - name: Check Deployment Status
+        run: |
+          kubectl get deployments
+          kubectl get pods
+          kubectl get svc
