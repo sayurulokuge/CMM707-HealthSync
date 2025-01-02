@@ -17,6 +17,11 @@ jobs:
       # Set up Docker
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
+        
+      # Set AWS region for further CLI commands
+      - name: Set AWS region
+        run: |
+          aws configure set region ap-southeast-1
 
       # Log in to ECR
       - name: Log in to Amazon ECR
