@@ -65,7 +65,7 @@ jobs:
       - name: Deploy notification-service to EKS
         run: |
           kubectl apply -f services/notification-service/kubernetes/notification-deployment.yaml
-          kubectl apply -f services/notification-service/kubernetes/service.yaml
+          kubectl apply -f services/notification-service/kubernetes/notification-service.yaml
 
       # Check the deployment status for all services
       - name: Check Deployment Status

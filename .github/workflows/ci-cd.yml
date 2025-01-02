@@ -21,6 +21,8 @@ jobs:
       # Log in to ECR
       - name: Log in to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
+        with:
+          region: ap-southeast-1
 
       # Build Docker images for each service
       - name: Build Docker image for patientrecord-service
