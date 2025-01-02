@@ -21,8 +21,11 @@ jobs:
       # Log in to ECR
       - name: Log in to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
-        with:
-          region: ap-southeast-1
+        
+      # Set AWS region for further CLI commands
+      - name: Set AWS region
+        run: |
+          aws configure set region ap-southeast-1
 
       # Build Docker images for each service
       - name: Build Docker image for patientrecord-service
